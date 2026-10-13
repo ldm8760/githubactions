@@ -1,3 +1,11 @@
+terraform {
+  backend "s3" {
+    bucket = "s3-github-actions-terraform"
+    key = "prod/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+
 # Configure the AWS Provider
 provider "aws" {
   region = "us-east-1"  # Set AWS region to US East 1 (N. Virginia)
@@ -17,11 +25,5 @@ resource "aws_instance" "my_server" {
    # Add tags to the EC2 instance for identification
    tags = {
      Name = "my ec2"
-   }                  
-}
-
-backend "s3" {
-  bucket = "s3-github-actions-terraform"
-  key = "prod/terraform.tfstate"
-  region = "us-east-1"
+   }
 }
