@@ -19,3 +19,9 @@ resource "aws_instance" "my_server" {
      Name = "my ec2"
    }                  
 }
+
+backend {
+  bucket = "s3-github-actions-terraform"
+  key = "prod/terraform.tfstate"
+  region = "us-east-1"
+}
