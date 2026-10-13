@@ -4,9 +4,9 @@ provider "aws" {
 }
 
 # Local variables block for configuration values
-#locals {
-#    aws_key = "<YOUR-KEY-NAME>"   # SSH key pair name for EC2 instance access
-#}
+locals {
+    aws_key = "LM_KEY_PAIR_useast1"   # SSH key pair name for EC2 instance access
+}
 
 # EC2 instance resource definition
 resource "aws_instance" "my_server" {
