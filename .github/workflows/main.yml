@@ -1,0 +1,57 @@
+name: "Github Actions Activity"
+
+# Defines when the workflow will run
+on:
+  # Manual trigger using GitHub Actions UI
+  workflow_dispatch:
+    inputs:
+      # Input parameter to choose between apply or destroy actions
+      action:
+        description: 'Terraform Action to Perform'
+        type: choice
+        options:
+        - Terraform_apply
+        - Terraform_destroy
+
+jobs:
+
+  terraform:
+    # Job label shows which action was selected
+    name: "Terraform (${{ github.event.inputs.action }})"
+    # Use GitHub-hosted Ubuntu runner
+    runs-on: ubuntu-latest
+
+    steps:
+      # Pull the repo so Terraform files are available
+      - name: Checkout repository
+        uses: actions/checkout@v4
+  
+      # Configure AWS creds for Terraform to access AWS
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+        
+      # Install the specified Terraform version
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.1.9
+          terraform_wrapper: false
+    
+      # Initialize providers and backend
+      - name: Terraform Init
+        run: terraform init
+
+      # Show the execution plan when applying
+      - name: Terraform Plan
+        if: ${{ github.event.inputs.action == 'Terraform_apply' }}
+        run: terraform plan
+
+      # Apply changes to AWS when applying
+      - name: Terraform Apply
+        if: ${{ github.event.inputs.action == 'Terraform_apply' }}
+        run: terraform apply -auto-approve
+        
