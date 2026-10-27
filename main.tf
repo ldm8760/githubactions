@@ -26,4 +26,6 @@ resource "aws_instance" "my_server" {
    tags = {
      Name = "my ec2"
    }
+
+   user_data = file("wp_install.sh") # Run shell script to startup wordpress installation
 }
