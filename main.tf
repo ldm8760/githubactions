@@ -17,7 +17,7 @@ locals {
 }
 
 resource "aws_s3_bucket" "recordings_bucket" {
-  bucket = "audio_drop_bucket"
+  bucket = "audio-drop-bucket"
 
   tags = {
     Name = "MyBucket"
