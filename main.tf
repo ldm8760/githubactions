@@ -27,7 +27,7 @@ resource "aws_s3_bucket" "recordings_bucket" {
 
 resource "aws_s3_object" "folder1" {
   
-  bucket = aws_s3_bucket.recordings_bucket
+  bucket = aws_s3_bucket.recordings_bucket.id
   acl = "private"
   key = "recordings/"
 }
