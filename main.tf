@@ -16,6 +16,57 @@ locals {
     aws_key = "LM_KEY_PAIR_useast1"   # SSH key pair name for EC2 instance access
 }
 
+resource "aws_s3_bucket" "recordings_bucket" {
+  bucket = "audio_drop_bucket"
+
+  tags = {
+    Name = "MyBucket"
+    Environment = "Dev"
+  }
+}
+
+resource "aws_s3_bucket_object" "folder1" {
+  bucket = "${aws_s3_bucket.recordings_bucket}"
+  acl = "private"
+  key = "recordings/"
+}
+
+# setup for lambda function
+# iam role
+resource "aws_iam_role" "lambda_role" {
+  name = "terraform_aws_lambda_role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "lambda.amazonaws.com"
+      }
+    }]
+  })
+}
+
+#iam policy for logging from a lambda
+resource "aws_iam_policy" "lambda_iam_policy" {
+  name = "aws_iam_policy_for_terraform_lambda_role"
+  path = "/"
+  description = "aws_iam_policy_for_terraform_lambda_role"
+
+  policy = jsondecode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      Effect = "Allow",
+      Resource = "arn:aws:logs:*:*:*"
+    }]
+  })
+}
+
 # security group resource definition
 resource "aws_security_group" "allow_http_ssh" {
   name = "allow_http"
