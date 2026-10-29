@@ -68,6 +68,23 @@ resource "aws_iam_policy" "lambda_iam_policy" {
   })
 }
 
+# attach policy to role (lambda)
+
+resource "aws_iam_role_policy_attachment" "attach_iam_to_iam_role" {
+  role = aws_iam_role.lambda_role.name  
+  policy_arn = aws_iam_policy.lambda_iam_policy.arn
+}
+
+# create lambda function
+resource "aws_lambda_function" "terraform_lambda_function" {
+  role = aws_iam_role.lambda_role.arn
+  function_name = "terraform_for_transcribe"
+  filename = "${path.module}/python/transcribe_handler.zip"  
+  handler = "transcribe_handler.lambda_handler"
+  runtime = "python3.15"
+  depends_on = [ aws_iam_role_policy_attachment.attach_iam_to_iam_role ]
+}
+
 # security group resource definition
 resource "aws_security_group" "allow_http_ssh" {
   name = "allow_http"
