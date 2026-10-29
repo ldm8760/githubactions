@@ -53,7 +53,7 @@ resource "aws_iam_policy" "lambda_iam_policy" {
   path = "/"
   description = "aws_iam_policy_for_terraform_lambda_role"
 
-  policy = jsondecode({
+  policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
       Action = [
