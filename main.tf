@@ -25,7 +25,7 @@ resource "aws_s3_bucket" "recordings_bucket" {
   }
 }
 
-resource "aws_s3_bucket_object" "folder1" {
+resource "aws_s3_object" "folder1" {
   bucket = "${aws_s3_bucket.recordings_bucket}"
   acl = "private"
   key = "recordings/"
