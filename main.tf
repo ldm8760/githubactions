@@ -76,11 +76,37 @@ resource "aws_iam_policy" "lambda_iam_policy" {
   })
 }
 
+# 3. Create a Custom IAM Policy for Amazon Transcribe
+resource "aws_iam_policy" "transcribe_access" {
+  name        = "lambda-transcribe-access-policy"
+  description = "Provides Lambda permissions to start and manage Transcribe jobs"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "transcribe:StartTranscriptionJob",
+          "transcribe:GetTranscriptionJob",
+          "transcribe:ListTranscriptionJobs"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 # attach policy to role (lambda)
 
 resource "aws_iam_role_policy_attachment" "attach_iam_to_iam_role" {
   role = aws_iam_role.lambda_role.name  
   policy_arn = aws_iam_policy.lambda_iam_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "attach_transcribe_policy" {
+  role = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.transcribe_access.arn
 }
 
 # create lambda function
