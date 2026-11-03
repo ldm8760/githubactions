@@ -28,6 +28,7 @@ data "aws_ami" "amazonlinux" {
     }
 }
 
+# reference lambda function
 data "archive_file" "zip_python_code" {
     type = "zip"
     source_dir = "${path.module}/python/"

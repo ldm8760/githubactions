@@ -16,6 +16,7 @@ locals {
     aws_key = "LM_KEY_PAIR_useast1"   # SSH key pair name for EC2 instance access
 }
 
+# bucket for general use
 resource "aws_s3_bucket" "recordings_bucket" {
   bucket = "audio-drop-bucket"
 
@@ -25,13 +26,14 @@ resource "aws_s3_bucket" "recordings_bucket" {
   }
 }
 
+# folder to drop recordings into
 resource "aws_s3_object" "folder1" {
-  
   bucket = aws_s3_bucket.recordings_bucket.id
   acl = "private"
   key = "recordings/"
 }
 
+# folder to store transcripts
 resource "aws_s3_object" "folder2" {
   bucket = aws_s3_bucket.recordings_bucket.id
   acl = "private"
@@ -134,4 +136,26 @@ resource "aws_instance" "my_server" {
    tags = {
      Name = "my ec2"
    }
+}
+
+# handle new files in s3
+# 
+resource "aws_lambda_permission" "allow_bucket" {
+  statement_id  = "AllowExecutionFromS3Bucket"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.terraform_lambda_function.arn
+  principal     = "s3.amazonaws.com"
+  source_arn    = aws_s3_object.folder1.arn
+}
+
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_object.folder1.id
+
+  lambda_function {
+    lambda_function_arn = aws_lambda_function.terraform_lambda_function.arn
+    events = [ "s3:ObjectCreated:*" ]
+    filter_prefix = "AWSLogs/"
+    filter_suffix = ".log"
+  }
+  depends_on = [ aws_lambda_permission.allow_bucket ]
 }
