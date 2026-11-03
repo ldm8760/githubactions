@@ -145,16 +145,16 @@ resource "aws_lambda_permission" "allow_bucket" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.terraform_lambda_function.arn
   principal     = "s3.amazonaws.com"
-  source_arn    = aws_s3_object.folder1.arn
+  source_arn    = aws_s3_bucket.recordings_bucket.arn
 }
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = aws_s3_object.folder1.id
+  bucket = aws_s3_bucket.recordings_bucket.id
 
   lambda_function {
     lambda_function_arn = aws_lambda_function.terraform_lambda_function.arn
     events = [ "s3:ObjectCreated:*" ]
-    filter_prefix = "AWSLogs/"
+    filter_prefix = "${aws_s3_object.folder1.key}" # trigger for new files in /recordings
     filter_suffix = ".log"
   }
   depends_on = [ aws_lambda_permission.allow_bucket ]
