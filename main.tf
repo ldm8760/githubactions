@@ -140,6 +140,28 @@ resource "aws_iam_role_policy_attachment" "attach_s3_policy" {
   policy_arn = aws_iam_policy.s3_access.arn
 }
 
+# dedicated iam role for transcribe
+resource "aws_iam_role" "transcribe_role" {
+  name = "transcribe-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "transcribe.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "attach_transcribe_role_policy" {
+  role = aws_iam_role.transcribe_role.name
+  policy_arn = aws_iam_policy.transcribe_access.arn
+}
+
 # create lambda function
 resource "aws_lambda_function" "terraform_lambda_function" {
   role = aws_iam_role.lambda_role.arn
