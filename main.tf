@@ -96,7 +96,7 @@ resource "aws_iam_policy" "transcribe_access" {
       {
         Effect = "Allow",
         Action = "iam:PassRole"
-        Resource = aws_iam_role.transcribe_service_role.arn
+        Resource = aws_iam_role.transcribe_role.arn
       }
     ]
   })
@@ -195,6 +195,13 @@ resource "aws_lambda_function" "terraform_lambda_function" {
   filename = "${path.module}/python/transcribe_handler.zip"  
   handler = "transcribe_handler.lambda_handler"
   runtime = "python3.15"
+
+  environment {
+    variables = {
+      TRANSCRIBE_ROLE_ARN = aws_iam_role.transcribe_role.arn
+    }
+  }
+
   depends_on = [ aws_iam_role_policy_attachment.attach_iam_to_iam_role ]
 }
 
