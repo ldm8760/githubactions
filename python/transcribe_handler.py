@@ -21,13 +21,23 @@ def lambda_handler(event, context):
         print(f"Unsupported file format: {file_ext}")
         return
 
+    job_args = {
+        "TranscriptionJobName": job_name,
+        "Media": {"MediaFileUri": fileURI},
+        "MediaFormat": file_ext,
+        "LanguageCode": "en-US",
+        "OutputBucketName": bucket,
+        "OutputKey": f"transcripts/{job_name}.json"
+    }
+
     # start transcribe job
-    response = transcribe.start_transcription_job(
-        TranscriptionJobName=job_name,
-        Media={'MediaFileUri': fileURI},
-        MediaFormat=file_ext,
-        LanguageCode='en-US',
-        OutputBucketName=bucket,
-        OutputKey=f"transcripts/{job_name}.json"
-    )
-    return response
+    response = transcribe.start_transcription_job(**job_args)
+    
+    job_status = response['TranscriptionJob']['TranscriptionJobStatus']
+    print(f"Transcription job initiated successfully: {job_status}")
+
+    return {
+        'statusCode': 200,
+        'body': f"Started transcription job {job_name}",
+        'jobStatus': job_status
+    }
