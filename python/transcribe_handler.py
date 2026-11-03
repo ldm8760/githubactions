@@ -17,7 +17,7 @@ def lambda_handler(event, context):
 
     # get file extension
     file_ext = filename.split('.')[-1].lower()
-    if file_ext not in ['mp3', 'mp4', 'wav', 'flac', 'ogg', 'amr', 'webm']:
+    if file_ext not in ['mp3', 'mp4', 'm4a', 'wav', 'flac', 'ogg', 'amr', 'webm']:
         print(f"Unsupported file format: {file_ext}")
         return
 
