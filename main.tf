@@ -92,6 +92,11 @@ resource "aws_iam_policy" "transcribe_access" {
           "transcribe:ListTranscriptionJobs"
         ]
         Resource = "*"
+      },
+      {
+        Effect = "Allow",
+        Action = "iam:PassRole"
+        Resource = aws_iam_role.transcribe_service_role.arn
       }
     ]
   })
@@ -157,9 +162,30 @@ resource "aws_iam_role" "transcribe_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "attach_transcribe_role_policy" {
-  role = aws_iam_role.transcribe_role.name
-  policy_arn = aws_iam_policy.transcribe_access.arn
+resource "aws_iam_policy" "lambda_passrole" {
+  name        = "lambda-passrole-policy"
+  description = "Allows Lambda to pass the Transcribe role"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "iam:PassRole"
+        Resource = aws_iam_role.transcribe_role.arn
+      }
+    ]
+  })
+}
+
+# resource "aws_iam_role_policy_attachment" "attach_transcribe_role_policy" {
+#   role = aws_iam_role.lambda_role.name
+#   policy_arn = aws_iam_policy.transcribe_access.arn
+# }
+
+resource "aws_iam_role_policy_attachment" "attach_passrole_to_lambda" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.lambda_passrole.arn
 }
 
 # create lambda function
