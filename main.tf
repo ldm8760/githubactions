@@ -32,6 +32,12 @@ resource "aws_s3_object" "folder1" {
   key = "recordings/"
 }
 
+resource "aws_s3_object" "folder2" {
+  bucket = aws_s3_bucket.recordings_bucket.id
+  acl = "private"
+  key = "transcripts/"
+}
+
 # setup for lambda function
 # iam role
 resource "aws_iam_role" "lambda_role" {
