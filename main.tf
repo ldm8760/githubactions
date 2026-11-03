@@ -97,6 +97,32 @@ resource "aws_iam_policy" "transcribe_access" {
   })
 }
 
+# Custom Policy for S3 Access (Read from recordings/, Write to transcripts/)
+resource "aws_iam_policy" "s3_access" {
+  name        = "lambda-s3-audio-transcribe-policy"
+  description = "Allows Lambda to read recordings and write transcripts"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject"
+        ]
+        Resource = "${aws_s3_bucket.recordings_bucket.arn}/recordings/*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject"
+        ]
+        Resource = "${aws_s3_bucket.recordings_bucket.arn}/transcripts/*"
+      }
+    ]
+  })
+}
+
 # attach policy to role (lambda)
 
 resource "aws_iam_role_policy_attachment" "attach_iam_to_iam_role" {
@@ -107,6 +133,11 @@ resource "aws_iam_role_policy_attachment" "attach_iam_to_iam_role" {
 resource "aws_iam_role_policy_attachment" "attach_transcribe_policy" {
   role = aws_iam_role.lambda_role.name
   policy_arn = aws_iam_policy.transcribe_access.arn
+}
+
+resource "aws_iam_role_policy_attachment" "attach_s3_policy" {
+  role = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.s3_access.arn
 }
 
 # create lambda function
